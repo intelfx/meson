@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from dataclasses import dataclass
+import os
 import subprocess
 import typing as T
 from enum import Enum
@@ -388,6 +389,10 @@ class BinaryTable:
 
     @staticmethod
     def detect_ccache() -> T.List[str]:
+        # $CCACHE_DISABLE is recognized by ccache executable, making it a no-op.
+        # Do not detect ccache if it is going to be disabled anyway.
+        if 'CCACHE_DISABLE' in os.environ:
+            return []
         try:
             subprocess.check_call(['ccache', '--version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         except (OSError, subprocess.CalledProcessError):
@@ -396,6 +401,11 @@ class BinaryTable:
 
     @staticmethod
     def detect_sccache() -> T.List[str]:
+        # sccache does not have a disabling variable (see detect_ccache() above).
+        # However, permit disabling sccache by analogy, since using sccache
+        # may be undesirable under certain conditions.
+        if 'SCCACHE_DISABLE' in os.environ:
+            return []
         try:
             subprocess.check_call(['sccache', '--version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         except (OSError, subprocess.CalledProcessError):
