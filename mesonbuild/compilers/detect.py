@@ -1072,7 +1072,7 @@ def detect_rust_compiler(env: 'Environment', for_machine: MachineChoice) -> Rust
 
                 # Of course, we're not going to use any of that, we just
                 # need it to get the proper arguments to pass to rustc
-                if exelist[0].endswith('ccache'):
+                if os.path.basename(exelist[0]) in {'ccache', 'sccache'}:
                     del exelist[0]
                 compiler.extend(cls.use_linker_args(exelist.pop(0), ''))
 
